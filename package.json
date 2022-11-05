@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "build:utils": "pnpm run --filter @zdj/utils build",
+    "build:reactivity": "pnpm run --filter @zdj/reactivity build",
+    "build": "pnpm run --filter=\"@zdj/*\" build"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
     "typescript": "^4.8.4",
     "unbuild": "^0.9.4",
     "vite": "^3.2.2",
-    "vitest": "^0.24.5"
+    "vitest": "^0.24.5",
+    "rollup": "^2.79.1"
   }
 }

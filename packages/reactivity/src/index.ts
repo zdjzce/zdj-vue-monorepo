@@ -21,7 +21,7 @@ import { isObject } from '@zdj/utils'
 */
 
 let activeEffect: any
-const effectFnStack:any = [] 
+const effectFnStack: any = []
 const WeakEffect = new WeakMap()
 export function reactive(obj: any) {
   return new Proxy(obj, {
@@ -56,11 +56,24 @@ function trigger(target, key, newVal, receiver) {
   if (!effectFnList) return
   const effects = effectFnList.get(key)
 
-  const effectsToRun = new Set(effects)
-  effectsToRun.forEach( (effectFn: any) => effectFn());
+  const effectsToRun = new Set()
+  effects && effects.forEach((effectFn: any) => {
+    if (effectFn !== activeEffect) {
+      effectsToRun.add(effectFn)
+    }
+  });
+
+  effectsToRun.forEach((fn: any) => {
+    if (fn.options.scheduler) {
+      // 将调度权交给调度函数
+      fn.options.scheduler(fn)
+    } else {
+      fn()
+    }
+  })
 }
 
-export function effect(fn) {
+export function effect(fn, options={}) {
   const effectFn = () => {
     cleanUp(effectFn)
     // 需要避免内层的 effect 覆盖外层，维护一个 effect 栈
@@ -73,6 +86,7 @@ export function effect(fn) {
     activeEffect = effectFnStack[effectFnStack.length - 1]
   }
 
+  effectFn.options = options
   effectFn.deps = []
   effectFn()
 }

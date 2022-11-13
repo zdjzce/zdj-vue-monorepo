@@ -32,12 +32,13 @@ export function reactive(obj: any) {
         WeakEffect.set(target, (weakMap = new Map()))
       }
 
-      let weakSet = weakMap.get(key)
-      if (!weakSet) {
-        weakMap.set(key, (weakSet = new Set()))
+      let deps = weakMap.get(key)
+      if (!deps) {
+        weakMap.set(key, (deps = new Set()))
       }
 
-      weakSet.add(activeEffect)
+      deps.add(activeEffect)
+      activeEffect.deps.push(deps)
       return Reflect.get(target, key, receiver)
     },
 
@@ -51,16 +52,29 @@ export function reactive(obj: any) {
 
 function trigger(target, key, newVal, receiver) {
   const effectFnList = WeakEffect.get(target)
-  if (!effectFnList) {
-    return
-  }
-  const effect = effectFnList.get(key)
-  effect && effect.forEach( fn => {
-    fn()
-  });
+  if (!effectFnList) return
+  const effects = effectFnList.get(key)
+
+  const effectsToRun = new Set(effects)
+  effectsToRun.forEach( (effectFn: any) => effectFn());
 }
 
 export function effect(fn) {
-  activeEffect = fn
-  return fn()
+  const effectFn = () => {
+    cleanUp(effectFn)
+    activeEffect = effectFn
+    fn()
+  }
+
+  effectFn.deps = []
+  effectFn()
+}
+
+export function cleanUp(effectFn) {
+  for (let i = 0; i < effectFn.deps.length; i++) {
+    const deps = effectFn.deps[i]
+    // 清除指定的 effectFn
+    deps.delete(effectFn)
+  }
+  effectFn.deps.length = 0
 }

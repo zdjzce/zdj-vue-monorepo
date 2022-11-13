@@ -21,6 +21,7 @@ import { isObject } from '@zdj/utils'
 */
 
 let activeEffect: any
+const effectFnStack:any = [] 
 const WeakEffect = new WeakMap()
 export function reactive(obj: any) {
   return new Proxy(obj, {
@@ -62,8 +63,14 @@ function trigger(target, key, newVal, receiver) {
 export function effect(fn) {
   const effectFn = () => {
     cleanUp(effectFn)
+    // 需要避免内层的 effect 覆盖外层，维护一个 effect 栈
     activeEffect = effectFn
+    effectFnStack.push(effectFn)
     fn()
+    // 执行完毕后弹出
+    effectFnStack.pop()
+    // 还原活跃effect为上一个
+    activeEffect = effectFnStack[effectFnStack.length - 1]
   }
 
   effectFn.deps = []

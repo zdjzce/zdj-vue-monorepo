@@ -112,6 +112,7 @@ describe('reactive 测试函数', () => {
     }
 
     effect(() => {
+      console.log('val:', val)
       val = data.foo + val
       temp += 1
     }, {

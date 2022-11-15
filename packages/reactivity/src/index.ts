@@ -40,13 +40,17 @@ export function reactive(obj: any) {
 
       deps.add(activeEffect)
       activeEffect.deps.push(deps)
-      return Reflect.get(target, key, receiver)
+      const resultGet = Reflect.get(target, key, receiver)
+      return resultGet
     },
 
     set(target, key, newVal, receiver) {
-      target[key] = newVal
-      trigger(target, key, newVal, receiver)
-      return true
+      const oldValue = target[key]
+      const result = Reflect.set(target, key, newVal, receiver)
+      if (oldValue != newVal) {
+        trigger(target, key, newVal, receiver)
+      }
+      return result
     }
   })
 }
@@ -73,22 +77,28 @@ function trigger(target, key, newVal, receiver) {
   })
 }
 
-export function effect(fn, options={}) {
+export function effect(fn, options={} as any) {
   const effectFn = () => {
     cleanUp(effectFn)
     // 需要避免内层的 effect 覆盖外层，维护一个 effect 栈
     activeEffect = effectFn
     effectFnStack.push(effectFn)
-    fn()
+    const res = fn()
     // 执行完毕后弹出
     effectFnStack.pop()
     // 还原活跃effect为上一个
     activeEffect = effectFnStack[effectFnStack.length - 1]
+    return res
   }
 
   effectFn.options = options
   effectFn.deps = []
-  effectFn()
+  
+  if (!options.lazy) {
+    effectFn()
+  }
+
+  return effectFn
 }
 
 export function cleanUp(effectFn) {

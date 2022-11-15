@@ -23,24 +23,18 @@ import { isObject } from '@zdj/utils'
 let activeEffect: any
 const effectFnStack: any = []
 const WeakEffect = new WeakMap()
+
 export function reactive(obj: any) {
   return new Proxy(obj, {
     get(target, key, receiver) {
-      if (!activeEffect) return
+      // console.log(target,key,receiver)
 
-      let weakMap = WeakEffect.get(target)
-      if (!weakMap) {
-        WeakEffect.set(target, (weakMap = new Map()))
-      }
+      // if (!activeEffect) return
 
-      let deps = weakMap.get(key)
-      if (!deps) {
-        weakMap.set(key, (deps = new Set()))
-      }
+      const resultGet = Reflect.get(target,key,receiver)
 
-      deps.add(activeEffect)
-      activeEffect.deps.push(deps)
-      const resultGet = Reflect.get(target, key, receiver)
+      track(target, key)
+     
       return resultGet
     },
 
@@ -53,6 +47,20 @@ export function reactive(obj: any) {
       return result
     }
   })
+}
+function track(target, key) {
+  if(!activeEffect) return
+  let weakMap = WeakEffect.get(target)
+  if (!weakMap) {
+    WeakEffect.set(target, (weakMap = new Map()))
+  }
+
+  let deps = weakMap.get(key)
+  if (!deps) {
+    weakMap.set(key, (deps = new Set()))
+  }
+  deps.add(activeEffect)
+  activeEffect.deps.push(deps)
 }
 
 function trigger(target, key, newVal, receiver) {

@@ -32,9 +32,7 @@ export function reactive(obj: any) {
       // if (!activeEffect) return
 
       const resultGet = Reflect.get(target,key,receiver)
-
       track(target, key)
-     
       return resultGet
     },
 
@@ -48,7 +46,7 @@ export function reactive(obj: any) {
     }
   })
 }
-function track(target, key) {
+export function track(target, key) {
   if(!activeEffect) return
   let weakMap = WeakEffect.get(target)
   if (!weakMap) {
@@ -63,7 +61,7 @@ function track(target, key) {
   activeEffect.deps.push(deps)
 }
 
-function trigger(target, key, newVal, receiver) {
+export function trigger(target, key, newVal, receiver) {
   const effectFnList = WeakEffect.get(target)
   if (!effectFnList) return
   const effects = effectFnList.get(key)

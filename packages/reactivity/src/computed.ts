@@ -1,4 +1,4 @@
-import { reactive, effect } from ".";
+import { reactive, effect, track, trigger } from ".";
 
 export function computed(getter) {
   let dirty = true
@@ -8,6 +8,7 @@ export function computed(getter) {
     scheduler() {
       if (!dirty){
         dirty = true
+        trigger(obj, 'value')
       }
     }
   });
@@ -18,6 +19,7 @@ export function computed(getter) {
         val = effectFn()
         dirty = false
       }
+      track(obj, 'value')
       return val
     }
   }

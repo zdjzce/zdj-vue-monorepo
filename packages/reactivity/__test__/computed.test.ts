@@ -40,7 +40,21 @@ describe("computed 测试函数", () => {
 
   })
 
-  it('computed set value', () => {
+  it('computed 嵌套effect', () => {
+    const data = {
+      foo: 1
+    }
+    const obj = reactive(data)
+    let temp = 0
+    const sum = computed(() => {
+      return obj.foo * 2 
+    })
+    effect(() => {
+      temp = sum.value + 1
+    })
 
+    obj.foo += 1
+    // 希望嵌套effect 更改computed依赖的值也能更新
+    expect(temp).toBe(5)
   })
 })

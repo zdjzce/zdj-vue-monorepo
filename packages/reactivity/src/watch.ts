@@ -1,17 +1,36 @@
+import { e } from "vitest/dist/index-220c1d70";
 import { effect, track, trigger } from ".";
 
-type ArgumentFun<T> = () => T
+interface ArgumentFun<T> {
+  (): T
+}
+interface CallBack<T> {
+  (oldVal: any, newVal: any): T
+}
 type Source = ArgumentFun<any> | any
 
 
-export function watch(source: Source , cb: ArgumentFun<any | void>) {
+export function watch(source: Source, cb: CallBack<void | any>, options?: any) {
   const getter = source instanceof Function ? source : traverse(source)
-  effect(getter, {
-    scheduler() {
-      cb()
-    },
+  let newVal, oldVal
+
+  const effectFn = effect(getter, {
+    scheduler: job,
     lazy: true
   })
+
+  function job() {
+    newVal = effectFn()
+    cb(newVal, oldVal)
+    // 需要把旧的值换成新的值
+    oldVal = newVal
+  }
+
+  if (options.immediate) {
+    job()
+  } else {
+    oldVal = effectFn()
+  }
 }
 
 export function traverse(source: any, seen = new Set()) {
@@ -21,7 +40,7 @@ export function traverse(source: any, seen = new Set()) {
   seen.add(source)
 
   // 递归处理对象
-  for(const k in source) {
+  for (const k in source) {
     traverse(source[k], seen)
   }
 

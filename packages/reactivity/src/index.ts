@@ -20,6 +20,13 @@ import { isObject } from '@zdj/utils'
  * 这样用户就有机会在过期回调中将上一次的副作用标记为过期。
 */
 
+
+type EffectHandle = () => any | void
+interface EffectOptions {
+  scheduler?: () => void | any
+  lazy?: Boolean
+}
+
 let activeEffect: any
 const effectFnStack: any = []
 const WeakEffect = new WeakMap()
@@ -27,10 +34,6 @@ const WeakEffect = new WeakMap()
 export function reactive(obj: any) {
   return new Proxy(obj, {
     get(target, key, receiver) {
-      // console.log(target,key,receiver)
-
-      // if (!activeEffect) return
-
       const resultGet = Reflect.get(target,key,receiver)
       track(target, key)
       return resultGet
@@ -40,7 +43,7 @@ export function reactive(obj: any) {
       const oldValue = target[key]
       const result = Reflect.set(target, key, newVal, receiver)
       if (oldValue != newVal) {
-        trigger(target, key, newVal, receiver)
+        trigger(target, key)
       }
       return result
     }
@@ -61,7 +64,7 @@ export function track(target, key) {
   activeEffect.deps.push(deps)
 }
 
-export function trigger(target, key, newVal, receiver) {
+export function trigger(target, key) {
   const effectFnList = WeakEffect.get(target)
   if (!effectFnList) return
   const effects = effectFnList.get(key)
@@ -83,7 +86,7 @@ export function trigger(target, key, newVal, receiver) {
   })
 }
 
-export function effect(fn, options={} as any) {
+export function effect(fn: EffectHandle, options = {} as EffectOptions) {
   const effectFn = () => {
     cleanUp(effectFn)
     // 需要避免内层的 effect 覆盖外层，维护一个 effect 栈

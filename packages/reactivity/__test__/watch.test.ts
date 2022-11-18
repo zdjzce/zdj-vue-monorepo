@@ -46,32 +46,32 @@ describe('watch', () => {
     expect(fn).toBeCalledTimes(2)
   })
 
-  it('watch invalidate', () => {
+  it('watch invalidate', async() => {
     const data = {
       foo: 1
     }
-    let temp = 0
+
+    let temp: number = 0
     const obj = reactive(data)
-    const fn = vi.fn(() => { })
+    const fn = vi.fn( () => { })
     watch(() => obj.foo, async (newVal, oldVal, onInvalidate) => {
       let expired = false
+
       onInvalidate(() => {
         // 期望下次执行set出发watch回调时 执行cleanup 将 expired 变为TRUe 让回调过期
         expired = true
       })
-
-      let res = 0
-      await setTimeout(() => {
-        res = 1
-      }, 500)
+      const res = await new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
+        return 1
+      })
       if (!expired) {
-        fn()
         temp += res
+        expect(temp).toBe(1)
       }
     })
     obj.foo++
+    await vi.runOnlyPendingTimers();
     obj.foo++
-    expect(temp).toBe(1)
-    expect(fn).toBeCalledTimes(1)
+    await vi.runOnlyPendingTimers();
   })
 })

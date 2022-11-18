@@ -28,6 +28,10 @@ export function watch(source: Source, cb: CallBack<void | any>, options?: any) {
     lazy: true
   })
 
+  function onInvalidate(fn) {
+    cleanUp = fn
+  }
+
   function job() {
     newVal = effectFn()
 
@@ -40,10 +44,6 @@ export function watch(source: Source, cb: CallBack<void | any>, options?: any) {
     cb(newVal, oldVal, onInvalidate)
     // 需要把旧的值换成新的值
     oldVal = newVal
-  }
-
-  function onInvalidate(fn) {
-    cleanUp = fn
   }
 
   if (options && options.immediate) {

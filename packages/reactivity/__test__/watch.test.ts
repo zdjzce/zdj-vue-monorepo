@@ -60,18 +60,18 @@ describe('watch', () => {
         expired = true
       })
 
-      let res = 0
-      await setTimeout(() => {
-        res = 1
-      }, 500)
+
+      await new Promise((resolve) => resolve(() => {
+        setTimeout(() => {
+        }, 1000)
+      }))
+
       if (!expired) {
         fn()
-        temp += res
+        expect(fn).toBeCalledTimes(1)
       }
     })
     obj.foo++
     obj.foo++
-    expect(temp).toBe(1)
-    expect(fn).toBeCalledTimes(1)
   })
 })

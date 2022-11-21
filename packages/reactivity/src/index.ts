@@ -30,6 +30,8 @@ interface EffectOptions {
 let activeEffect: any
 const effectFnStack: any = []
 const WeakEffect = new WeakMap()
+const ITERATE_KEY = Symbol()
+
 
 export function reactive(obj: any) {
   return new Proxy(obj, {
@@ -42,13 +44,26 @@ export function reactive(obj: any) {
     set(target, key, newVal, receiver) {
       const oldValue = target[key]
       const result = Reflect.set(target, key, newVal, receiver)
+      const type = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
       if (oldValue != newVal) {
-        trigger(target, key)
+        trigger(target, key, type)
       }
       return result
+    },
+
+    has(target, key) {
+      track(target, key)
+      return Reflect.has(target, key)
+    },
+
+    ownKeys(target) {
+      track(target, ITERATE_KEY)
+      return Reflect.ownKeys(target)
     }
+    
   })
 }
+
 export function track(target, key) {
   if(!activeEffect) return
   let weakMap = WeakEffect.get(target)
@@ -64,10 +79,19 @@ export function track(target, key) {
   activeEffect.deps.push(deps)
 }
 
-export function trigger(target, key) {
+export function trigger(target, key, type) {
   const effectFnList = WeakEffect.get(target)
   if (!effectFnList) return
   const effects = effectFnList.get(key)
+
+  if (type === 'ADD') {
+    const iterateEffects = effectFnList.get(ITERATE_KEY)
+    iterateEffects && iterateEffects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectFn()
+      }
+    });
+  }
 
   const effectsToRun = new Set()
   effects && effects.forEach((effectFn: any) => {

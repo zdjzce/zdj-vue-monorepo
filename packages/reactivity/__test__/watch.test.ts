@@ -66,12 +66,12 @@ describe('watch', () => {
       })
       if (!expired) {
         temp += res
-        expect(temp).toBe(1)
+        expect(temp).toBe(1) // 虽然设置了两次调用了两次回调 但只有一次进入
       }
     })
     obj.foo++
-    await vi.runOnlyPendingTimers();
+    vi.runOnlyPendingTimers();
     obj.foo++
-    await vi.runOnlyPendingTimers();
+    vi.runOnlyPendingTimers();
   })
 })

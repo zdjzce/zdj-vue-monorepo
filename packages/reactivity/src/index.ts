@@ -43,8 +43,8 @@ export function reactive(obj: any) {
 
     set(target, key, newVal, receiver) {
       const oldValue = target[key]
-      const result = Reflect.set(target, key, newVal, receiver)
       const type = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
+      const result = Reflect.set(target, key, newVal, receiver)
       if (oldValue != newVal) {
         trigger(target, key, type)
       }
@@ -83,17 +83,17 @@ export function trigger(target, key, type) {
   const effectFnList = WeakEffect.get(target)
   if (!effectFnList) return
   const effects = effectFnList.get(key)
+  const effectsToRun = new Set()
 
   if (type === 'ADD') {
     const iterateEffects = effectFnList.get(ITERATE_KEY)
     iterateEffects && iterateEffects.forEach(effectFn => {
       if (effectFn !== activeEffect) {
-        effectFn()
+        effectsToRun.add(effectFn)
       }
     });
   }
 
-  const effectsToRun = new Set()
   effects && effects.forEach((effectFn: any) => {
     if (effectFn !== activeEffect) {
       effectsToRun.add(effectFn)

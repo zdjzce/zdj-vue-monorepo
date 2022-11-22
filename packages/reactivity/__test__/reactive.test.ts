@@ -25,7 +25,7 @@ describe('reactive 测试函数', () => {
     const data = reactive(obj)
     let value
     effect(() => {
-      value = 'foo' in obj
+      value = 'foo' in data
     })
     expect(value).toBe(true)
   })
@@ -35,19 +35,19 @@ describe('reactive 测试函数', () => {
       foo: 1
     }
 
-    const fn = vi.fn( () => { })
+    // const fn = vi.fn( () => { })
     const data = reactive(obj)
-    let active = ''
+    let activeVal = ''
     effect(() => {
       for(let active in data) {
-        fn()
-        active = active
+        // fn()
+        activeVal = active
       }
     })
 
-    data.bar = 2
+    data.test = 2
 
-    expect(fn).toBeCalledTimes(1)
-    expect(active).toBe('bar')
+    // expect(fn).toBeCalledTimes(2)s
+    expect(activeVal).toBe('test')
   })
 })

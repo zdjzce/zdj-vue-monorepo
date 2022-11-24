@@ -59,6 +59,17 @@ export function reactive(obj: any) {
     ownKeys(target) {
       track(target, ITERATE_KEY)
       return Reflect.ownKeys(target)
+    },
+
+    deleteProperty(target, key) {
+      const hadKey = Object.prototype.hasOwnProperty.call(target, key)
+      const res = Reflect.deleteProperty(target, key)
+      
+      if (hadKey && res) {
+        trigger(target, key, 'DELETE')
+      }
+
+      return res
     }
     
   })
@@ -85,7 +96,7 @@ export function trigger(target, key, type) {
   const effects = effectFnList.get(key)
   const effectsToRun = new Set()
 
-  if (type === 'ADD') {
+  if (type === 'ADD' || type === 'DELETE') {
     const iterateEffects = effectFnList.get(ITERATE_KEY)
     iterateEffects && iterateEffects.forEach(effectFn => {
       if (effectFn !== activeEffect) {

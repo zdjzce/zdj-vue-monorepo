@@ -46,7 +46,7 @@ describe('reactive 测试函数', () => {
     })
 
     data.test = 2
-
+// 
     // expect(fn).toBeCalledTimes(2)s
     expect(activeVal).toBe('test')
   })

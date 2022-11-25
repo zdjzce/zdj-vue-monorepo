@@ -90,7 +90,7 @@ export function track(target, key) {
   activeEffect.deps.push(deps)
 }
 
-export function trigger(target, key, type) {
+export function trigger(target, key, type?: string) {
   const effectFnList = WeakEffect.get(target)
   if (!effectFnList) return
   const effects = effectFnList.get(key)

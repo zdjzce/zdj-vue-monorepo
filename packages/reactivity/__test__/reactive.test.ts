@@ -50,4 +50,23 @@ describe('reactive 测试函数', () => {
     // expect(fn).toBeCalledTimes(2)s
     expect(activeVal).toBe('test')
   })
+
+  it('delete property', () => {
+    const obj = {
+      foo: 1,
+      bar: 2
+    }
+    const data = reactive(obj)
+    let activeVal = ''
+    effect(() => {
+      for(let active in data) {
+        // fn()
+        activeVal = active
+      }
+    })
+    expect(activeVal).toBe('bar')
+
+    delete data.bar
+    expect(activeVal).toBe('foo')
+  })
 })

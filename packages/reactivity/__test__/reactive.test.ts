@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
 import { reactive, effect } from '../src/index'
-// @ts-ignore
-import { flushJob } from '@zdj/utils'
 describe('reactive 测试函数', () => {
   it('基本响应式数据', () => {
     const obj = {

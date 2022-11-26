@@ -1,5 +1,4 @@
-import { e } from "vitest/dist/index-220c1d70";
-import { effect, track, trigger } from ".";
+import { effect } from "./effect";
 
 interface ArgumentFun<T> {
   (): T

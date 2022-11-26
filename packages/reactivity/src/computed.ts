@@ -1,4 +1,4 @@
-import { effect, track, trigger } from ".";
+import { effect, track, trigger } from "./effect";
 
 export function computed(getter) {
   let dirty = true

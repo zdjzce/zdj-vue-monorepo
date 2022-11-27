@@ -34,12 +34,14 @@ function createSetter(isReadonly?) {
       return true
     }
     const oldValue = target[key]
-    const type = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
+    const arrayType = Number(key) > target.length ? 'ADD' : 'SET'  
+    const objectType = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
+    const type = Array.isArray(target) ? arrayType : objectType
     const result = Reflect.set(target, key, newVal, receiver)
     // 防止访问原型上的属性时原型对象与当前代理对象不同 触发不必要的响应
     if (target === receiver.raw) {
       if (oldValue != newVal) {
-        trigger(target, key, type)
+        trigger(target, key, type, newVal)
       }
     }
     return result
@@ -71,6 +73,9 @@ function createDeleteProperty(isReadonly) {
 
     return res
   }
+}
+
+function arrayGetHandle() {
 
 }
 

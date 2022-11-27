@@ -10,7 +10,7 @@ const effectFnStack: any = []
 const WeakEffect = new WeakMap()
 
 export function track(target, key) {
-  if(!activeEffect) return
+  if (!activeEffect) return
   let weakMap = WeakEffect.get(target)
   if (!weakMap) {
     WeakEffect.set(target, (weakMap = new Map()))
@@ -24,11 +24,34 @@ export function track(target, key) {
   activeEffect.deps.push(deps)
 }
 
-export function trigger(target, key, type?: string) {
+export function trigger(target, key, type?: string, newVal?: any) {
   const effectFnList = WeakEffect.get(target)
   if (!effectFnList) return
   const effects = effectFnList.get(key)
   const effectsToRun = new Set()
+
+
+  if (type === 'ADD' && Array.isArray(target)) {
+    const effectLenFn = effectFnList.get('length')
+    effectLenFn && effectLenFn.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn)
+      }
+    })
+  }
+
+  if (key === 'length' && Array.isArray(target)) {
+    effectFnList.forEach((effectFns, key) => {
+      // 当修改数组长度时 应该把索引大于等于新长度的副作用函数重新执行
+      if (key >= newVal) {
+        effectFns.forEach(effectFn => {
+          if (effectFn !== activeEffect) {
+            effectsToRun.add(effectFn)
+          }
+        })
+      }
+    })
+  }
 
   if (type === 'ADD' || type === 'DELETE') {
     const iterateEffects = effectFnList.get(ITERATE_KEY)
@@ -46,7 +69,7 @@ export function trigger(target, key, type?: string) {
   });
 
   effectsToRun.forEach((fn: any) => {
-    if (fn.options.scheduler) {
+    if (fn.options && fn.options.scheduler) {
       // 将调度权交给调度函数
       fn.options.scheduler(fn)
     } else {
@@ -71,7 +94,7 @@ export function effect(fn: EffectHandle, options = {} as EffectOptions) {
 
   effectFn.options = options
   effectFn.deps = []
-  
+
   if (!options.lazy) {
     effectFn()
   }

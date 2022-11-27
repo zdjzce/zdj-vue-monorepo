@@ -11,7 +11,6 @@ export function readonly(obj: any) {
 
 }
 
-
 export function createReactiveProxy(target, proxyHandles) {
   const proxy = new Proxy(target, proxyHandles)
   return proxy

@@ -43,4 +43,13 @@ describe('reactive 测试函数', () => {
     expect(fn).toBeCalledTimes(3)
 
   })
+
+  it("array's object item will be found", () => {
+    const obj = {}
+    const data = reactive([obj])
+
+    expect(data.includes(data[0])).toBe(true)
+    expect(data.includes(obj)).toBe(true)
+    
+  })
 })

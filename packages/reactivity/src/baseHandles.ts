@@ -7,8 +7,8 @@ function createGetter(isReadonly?: boolean) {
     if (key === 'raw') return target
     const resultGet = Reflect.get(target, key, receiver)
 
-    // 只读的情况下没必要收集副作用
-    if (!isReadonly) {
+    // 只读的情况下没必要收集副作用, symbol 没必要收集
+    if (!isReadonly && typeof key !== 'symbol') {
       track(target, key)
     }
 
@@ -54,7 +54,7 @@ function has(target, key) {
 }
 
 function ownKeys(target) {
-  track(target, ITERATE_KEY)
+  track(target, Array.isArray(target) ? 'length' : ITERATE_KEY)
   return Reflect.ownKeys(target)
 }
 

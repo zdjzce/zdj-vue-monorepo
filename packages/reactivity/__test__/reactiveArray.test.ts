@@ -17,7 +17,7 @@ describe('reactive 测试函数', () => {
   it("change length >= index, index's handle will working", () => {
     const arr = [1]
     const data = reactive(arr)
-    const fn = vi.fn(() => { })
+    const fn = vi.fn(() => {})
     let testMock = 0
     effect(() => {
       testMock = data[0] || 0
@@ -25,5 +25,22 @@ describe('reactive 测试函数', () => {
     })
     data.length = 0
     expect(fn).toBeCalledTimes(2)
+  })
+
+  it('array iterator', () => {
+    const arr = [1, 2]
+    const data = reactive(arr)
+    const fn = vi.fn(() => {})
+    effect(() => {
+      fn()
+      for(let item of data) {
+        console.log(item)
+      }
+    })
+
+    data[0] = 2
+    data.length = 3
+    expect(fn).toBeCalledTimes(3)
+
   })
 })

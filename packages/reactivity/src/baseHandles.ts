@@ -2,32 +2,46 @@ import { track, trigger } from "./effect"
 import { ITERATE_KEY } from "./reactive"
 import { reactive } from './reactive'
 const arrayInstrumentation = {}
-/**
- * 重写数组查找元素方法
- * 假如有 data = reactive([{}]) 那么 data.includes({}) 会为 false, 因为调用内部
- * 法时 this 值已经变成了响应式对象，对象内部也已被包裹成 reactive 代理对象。
- **/
- ;['includes', 'indexOf', 'lastIndexOf'].forEach(methods => {
-  const originMethod = Array.prototype[methods]
-  arrayInstrumentation[methods] = function (...args) {
-    let res = originMethod.apply(this, args)
-    
-    if (res === false || res === -1) {
-      res = originMethod.apply(this.raw, args)
+  /**
+   * 重写数组查找元素方法
+   * 假如有 data = reactive([{}]) 那么 data.includes({}) 会为 false, 因为调用内部
+   * 法时 this 值已经变成了响应式对象，对象内部也已被包裹成 reactive 代理对象。
+   **/
+  ;['includes', 'indexOf', 'lastIndexOf'].forEach(methods => {
+    const originMethod = Array.prototype[methods]
+    arrayInstrumentation[methods] = function (...args) {
+      let res = originMethod.apply(this, args)
+
+      if (res === false || res === -1) {
+        res = originMethod.apply(this.raw, args)
+      }
+
+      return res
     }
-    
-    return res
-  }
-})
+  })
+
+  /**
+   * push pop 等方法会改变原数组，并且会影响到原数组的 length 属性 会陷入死循环 所以需要重写
+   */
+   export let shouldTrack = true
+  ;['push', 'pop', 'shift', 'unshift', 'splice'].forEach(method => {
+    const originMethod = Array.prototype[method]
+    arrayInstrumentation[method] = function(...args) {
+      shouldTrack = false
+      const res = originMethod.apply(this, args)
+      shouldTrack = true
+      return res
+    }
+  })
 
 function createGetter(isReadonly?: boolean) {
   return function get(target, key, receiver) {
     if (key === 'raw') return target
-    
+
     if (Array.isArray(target) && arrayInstrumentation.hasOwnProperty(key)) {
       return Reflect.get(arrayInstrumentation, key, receiver)
     }
-    
+
     const resultGet = Reflect.get(target, key, receiver)
     // 只读的情况下没必要收集副作用, symbol 没必要收集
     if (!isReadonly && typeof key !== 'symbol') {

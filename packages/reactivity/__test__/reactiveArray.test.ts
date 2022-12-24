@@ -17,7 +17,7 @@ describe('reactive 测试函数', () => {
   it("change length >= index, index's handle will working", () => {
     const arr = [1]
     const data = reactive(arr)
-    const fn = vi.fn(() => {})
+    const fn = vi.fn(() => { })
     let testMock = 0
     effect(() => {
       testMock = data[0] || 0
@@ -30,10 +30,10 @@ describe('reactive 测试函数', () => {
   it('array iterator', () => {
     const arr = [1, 2]
     const data = reactive(arr)
-    const fn = vi.fn(() => {})
+    const fn = vi.fn(() => { })
     effect(() => {
       fn()
-      for(let item of data) {
+      for (let item of data) {
         console.log(item)
       }
     })
@@ -50,6 +50,24 @@ describe('reactive 测试函数', () => {
 
     expect(data.includes(data[0])).toBe(true)
     expect(data.includes(obj)).toBe(true)
+
+  })
+
+  it("push pop shift unshift splice change length stack will not maximum", () => {
+    const data = reactive([])
+    effect(() => {
+      data.push(1)      
+    })
+
+    effect(() => {
+      data.push(1)      
+    })
+
+    expect(data.length).toBe(2)
+    // data.pop()
+    // expect(data.length).toBe(1)
+    // data.unshift()
+    // expect(data.length).toBe(0)
     
   })
 })

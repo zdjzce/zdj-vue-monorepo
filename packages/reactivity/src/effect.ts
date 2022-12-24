@@ -1,4 +1,5 @@
 import { ITERATE_KEY } from './reactive'
+import { shouldTrack } from './baseHandles';
 type EffectHandle = () => any | void
 interface EffectOptions {
   scheduler?: () => void | any
@@ -10,7 +11,7 @@ const effectFnStack: any = []
 const WeakEffect = new WeakMap()
 
 export function track(target, key) {
-  if (!activeEffect) return
+  if (!activeEffect || !shouldTrack) return
   let weakMap = WeakEffect.get(target)
   if (!weakMap) {
     WeakEffect.set(target, (weakMap = new Map()))

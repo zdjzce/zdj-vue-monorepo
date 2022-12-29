@@ -111,10 +111,6 @@ function createDeleteProperty(isReadonly) {
   }
 }
 
-function arrayGetHandle() {
-
-}
-
 export function mutableHandlers(isReadonly?: boolean) {
   let readonly = isReadonly || false
   return {

@@ -53,21 +53,4 @@ describe('reactive 测试函数', () => {
 
   })
 
-  it("push pop shift unshift splice change length stack will not maximum", () => {
-    const data = reactive([])
-    effect(() => {
-      data.push(1)      
-    })
-
-    effect(() => {
-      data.push(1)      
-    })
-
-    expect(data.length).toBe(2)
-    // data.pop()
-    // expect(data.length).toBe(1)
-    // data.unshift()
-    // expect(data.length).toBe(0)
-    
-  })
 })

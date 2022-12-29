@@ -60,14 +60,14 @@ export function trigger(target, key, type?: string, newVal?: any) {
       if (effectFn !== activeEffect) {
         effectsToRun.add(effectFn)
       }
-    });
+    })
   }
 
   effects && effects.forEach((effectFn: any) => {
     if (effectFn !== activeEffect) {
       effectsToRun.add(effectFn)
     }
-  });
+  })
 
   effectsToRun.forEach((fn: any) => {
     if (fn.options && fn.options.scheduler) {

@@ -29,6 +29,22 @@ const setMapInstrumentation = {
   has(key) {
     const target = this.raw
     return target.has(key)
+  },
+
+  set(key, value) {
+    const target = this.raw
+    const hadKey = target.has(key)
+
+    const oldValue = target.get(key)
+    // 获取原始数据， 由于 value 本身已经是原始数据，所以此时 value.raw 不存在，则直接使用 value
+    const rawValue = value.raw || value
+    target.set(key, rawValue)
+
+    if (!hadKey) {
+      trigger(target, key, 'ADD')
+    } else if (oldValue !== value || (oldValue === value && value === value)) {
+      trigger(target, key, 'SET')
+    }
   }
 }
 

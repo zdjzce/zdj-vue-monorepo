@@ -45,6 +45,13 @@ const setMapInstrumentation = {
     } else if (oldValue !== value || (oldValue === value && value === value)) {
       trigger(target, key, 'SET')
     }
+  },
+
+  forEach(callback) {
+    const target = this.raw
+    track(target, ITERATE_KEY)
+
+    return target.forEach(callback)
   }
 }
 

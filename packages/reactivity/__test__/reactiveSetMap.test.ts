@@ -35,5 +35,17 @@ describe('reactive set map 测试函数', () => {
     })
     proxy.set({ key: 2 }, { value: 2 })
     expect(fn).toBeCalledTimes(2)
+    /* 在遍历时如果获取到原始数据 也应该是响应式对象 */
+    const obj = new Map([['key', 1]])
+    const data = new Set([1, 2, 3])
+    const map = reactive(new Map([[obj, data]]))
+    let dataSize = 0
+    effect(() => {
+      map.forEach(element => {
+        dataSize = element.size
+      })
+    })
+    data.delete(1)
+    expect(dataSize).toBe(2)
   })
 })

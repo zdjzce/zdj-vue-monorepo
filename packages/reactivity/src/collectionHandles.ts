@@ -1,6 +1,7 @@
 import { track, trigger } from "./effect"
 import { ITERATE_KEY } from "./reactive"
 import { reactive } from './reactive'
+import { isObject } from '@zdj/utils/src'
 const setMapInstrumentation = {
   add(key) {
     // this 仍然指向代理对象， 通过 raw 获取原始对象
@@ -48,10 +49,14 @@ const setMapInstrumentation = {
   },
 
   forEach(callback) {
+    const convertValue = (val) => isObject(val) ? reactive(val) : val
     const target = this.raw
     track(target, ITERATE_KEY)
-
-    return target.forEach(callback)
+    target.forEach((v, i) => {
+      // 手动调用 callback，用 wrap 函数包裹 value 和 key 后再传给
+// callback，这样就实现了深响应
+      callback(convertValue(v), convertValue(i), this)
+    })
   }
 }
 

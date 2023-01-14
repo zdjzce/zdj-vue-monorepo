@@ -50,7 +50,7 @@ describe('reactive set map 测试函数', () => {
   })
 
   it('for of', () => {
-    const map = new Map([['key1', 'value1'], ['key2', 'value2']])
+    const map = reactive(new Map([['key1', 'value1'], ['key2', 'value2']]))
     const fn = vi.fn(() => {})
     effect(() => {
       for(const [key, value] of map) {
@@ -60,7 +60,19 @@ describe('reactive set map 测试函数', () => {
     })
 
     map.set('key3', 'value3')
-    expect(fn).toBeCalledTimes(2)
+    expect(fn).toBeCalledTimes(5)
+  })
 
+  it('for of key', () => {
+    const map = reactive(new Map([['key1', 'value1'], ['key2', 'value2']]))
+    const fn2 = vi.fn(() => {})
+    effect(() => {
+      for(const key of map.keys()) {
+        fn2()
+        console.log(key)
+      }
+    })
+    map.set('key2', 'value4')
+    expect(fn2).toBeCalledTimes(2)
   })
 })

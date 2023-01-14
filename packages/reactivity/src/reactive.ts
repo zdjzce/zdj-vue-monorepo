@@ -3,6 +3,7 @@ import { mutableHandlers } from './baseHandles'
 import { collectionHandles } from './collectionHandles';
 
 export const ITERATE_KEY = Symbol()
+export const MAP_ITERATOR_KEY = Symbol() 
 const reactiveMap = new Map()
 
 enum TargetType {

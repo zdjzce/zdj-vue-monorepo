@@ -1,5 +1,5 @@
 import { track, trigger } from "./effect"
-import { ITERATE_KEY } from "./reactive"
+import { ITERATE_KEY, MAP_ITERATOR_KEY } from "./reactive"
 import { reactive } from './reactive'
 import { isObject } from '@zdj/utils/src'
 const setMapInstrumentation = {
@@ -66,10 +66,10 @@ const setMapInstrumentation = {
       callback.call(thisArg, convertValue(v), convertValue(i), this)
     })
   },
-
-  [Symbol.iterator]: iteratorMethod,
-
-  entries: iteratorMethod
+[Symbol.iterator]: iteratorMethod,
+  entries: iteratorMethod,
+  values: valueIteratorMethod,
+  keys: keysIteratorMethod,
 }
 
 function iteratorMethod() {
@@ -77,12 +77,55 @@ function iteratorMethod() {
   const itr = target[Symbol.iterator]()
 
   const wrap = (val) => isObject(val) ? reactive(val) : val
+  track(target, ITERATE_KEY)
 
   return {
     next() {
       const { value, done } = itr.next()
       return {
-        value: value ? [wrap(value[0]), wrap(value[1])] : value,
+        value: value ? [wrap(value[0]), wrap(value[1])] : value ,
+        done
+      }
+    },
+    // 可迭代协议
+    [Symbol.iterator]() {
+      return this
+    }
+  }
+}
+
+function valueIteratorMethod() {
+  const target = this.raw
+  const itr = target.values()
+  const wrap = (val) => isObject(val) ? reactive(val) : val
+  track(target, ITERATE_KEY)
+
+  return {
+    next() {
+      const { value, done } = itr
+      return {
+        value: wrap(value),
+        done
+      }
+    },
+    [Symbol.iterator]() {
+      return this
+    }
+  }
+}
+
+
+function keysIteratorMethod() {
+  const target = this.raw
+  const wrap = (val) => isObject(val) ? reactive(val) : val
+  const itr = target.keys()
+   
+  track(target, MAP_ITERATOR_KEY)
+  return {
+    next() {
+      const { value, done } = itr.next()
+      return {
+        value: wrap(value),
         done
       }
     },

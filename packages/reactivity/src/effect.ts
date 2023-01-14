@@ -1,4 +1,4 @@
-import { ITERATE_KEY } from './reactive'
+import { ITERATE_KEY, MAP_ITERATOR_KEY } from './reactive'
 import { shouldTrack } from './baseHandles';
 type EffectHandle = () => any | void
 interface EffectOptions {
@@ -57,6 +57,15 @@ export function trigger(target, key, type?: string, newVal?: any) {
   const isMapObjectSet = type === 'SET' && Object.prototype.toString.call(target) === '[object Map]' 
   if (type === 'ADD' || type === 'DELETE' || isMapObjectSet) {
     const iterateEffects = effectFnList.get(ITERATE_KEY)
+    iterateEffects && iterateEffects.forEach(effectFn => {
+      if (effectFn !== activeEffect) {
+        effectsToRun.add(effectFn)
+      }
+    })
+  }
+
+  if (type === 'ADD' || type === 'DELETE' && Object.prototype.toString.call(target) === '[object Map]') {
+    const iterateEffects = effectFnList.get(MAP_ITERATOR_KEY)
     iterateEffects && iterateEffects.forEach(effectFn => {
       if (effectFn !== activeEffect) {
         effectsToRun.add(effectFn)

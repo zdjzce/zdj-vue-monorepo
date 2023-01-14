@@ -65,6 +65,31 @@ const setMapInstrumentation = {
       // 手动调用 callback，用 wrap 函数包裹 value 和 key 后再传给 callback，这样就实现了深响应
       callback.call(thisArg, convertValue(v), convertValue(i), this)
     })
+  },
+
+  [Symbol.iterator]: iteratorMethod,
+
+  entries: iteratorMethod
+}
+
+function iteratorMethod() {
+  const target = this.raw
+  const itr = target[Symbol.iterator]()
+
+  const wrap = (val) => isObject(val) ? reactive(val) : val
+
+  return {
+    next() {
+      const { value, done } = itr.next()
+      return {
+        value: value ? [wrap(value[0]), wrap(value[1])] : value,
+        done
+      }
+    },
+    // 可迭代协议
+    [Symbol.iterator]() {
+      return this
+    }
   }
 }
 

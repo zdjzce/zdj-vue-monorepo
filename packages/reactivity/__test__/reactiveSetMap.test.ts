@@ -48,4 +48,19 @@ describe('reactive set map 测试函数', () => {
     map.get(obj).delete(2)
     expect(dataSize).toBe(2)
   })
+
+  it('for of', () => {
+    const map = new Map([['key1', 'value1'], ['key2', 'value2']])
+    const fn = vi.fn(() => {})
+    effect(() => {
+      for(const [key, value] of map) {
+        fn()
+        console.log(key, value)
+      }
+    })
+
+    map.set('key3', 'value3')
+    expect(fn).toBeCalledTimes(2)
+
+  })
 })

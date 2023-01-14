@@ -3,6 +3,15 @@ import { ITERATE_KEY } from "./reactive"
 import { reactive } from './reactive'
 import { isObject } from '@zdj/utils/src'
 const setMapInstrumentation = {
+  get(key) {
+    const target = this.raw
+    const had = target.has(key)
+    track(target, key)
+    if (had) { 
+      const res = target.get(key)
+      return isObject(res) ? reactive(res) : res
+    }
+  },
   add(key) {
     // this 仍然指向代理对象， 通过 raw 获取原始对象
     const target = this.raw
@@ -48,14 +57,13 @@ const setMapInstrumentation = {
     }
   },
 
-  forEach(callback) {
+  forEach(callback, thisArg) {
     const convertValue = (val) => isObject(val) ? reactive(val) : val
     const target = this.raw
     track(target, ITERATE_KEY)
     target.forEach((v, i) => {
-      // 手动调用 callback，用 wrap 函数包裹 value 和 key 后再传给
-// callback，这样就实现了深响应
-      callback(convertValue(v), convertValue(i), this)
+      // 手动调用 callback，用 wrap 函数包裹 value 和 key 后再传给 callback，这样就实现了深响应
+      callback.call(thisArg, convertValue(v), convertValue(i), this)
     })
   }
 }

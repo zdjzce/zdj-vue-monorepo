@@ -45,7 +45,7 @@ describe('reactive set map 测试函数', () => {
         dataSize = element.size
       })
     })
-    data.delete(1)
+    map.get(obj).delete(2)
     expect(dataSize).toBe(2)
   })
 })

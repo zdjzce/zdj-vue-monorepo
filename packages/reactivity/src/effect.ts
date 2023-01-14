@@ -54,7 +54,8 @@ export function trigger(target, key, type?: string, newVal?: any) {
     })
   }
 
-  if (type === 'ADD' || type === 'DELETE') {
+  const isMapObjectSet = type === 'SET' && Object.prototype.toString.call(target) === '[object Map]' 
+  if (type === 'ADD' || type === 'DELETE' || isMapObjectSet) {
     const iterateEffects = effectFnList.get(ITERATE_KEY)
     iterateEffects && iterateEffects.forEach(effectFn => {
       if (effectFn !== activeEffect) {

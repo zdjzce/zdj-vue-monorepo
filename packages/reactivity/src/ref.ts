@@ -57,5 +57,6 @@ function proxyRefs(target) {
 export {
   ref,
   toRef,
-  toRefs
+  toRefs,
+  proxyRefs
 }

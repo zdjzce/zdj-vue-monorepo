@@ -66,7 +66,7 @@ const setMapInstrumentation = {
       callback.call(thisArg, convertValue(v), convertValue(i), this)
     })
   },
-[Symbol.iterator]: iteratorMethod,
+  [Symbol.iterator]: iteratorMethod,
   entries: iteratorMethod,
   values: valueIteratorMethod,
   keys: keysIteratorMethod,

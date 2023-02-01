@@ -17,13 +17,14 @@
     "@vitest/coverage-c8": "^0.24.5",
     "@vitest/coverage-istanbul": "^0.24.5",
     "jsdom": "^20.0.2",
+    "rollup": "^2.79.1",
     "typescript": "^4.8.4",
     "unbuild": "^0.9.4",
     "vite": "^3.2.2",
-    "vitest": "^0.24.5",
-    "rollup": "^2.79.1"
+    "vitest": "^0.24.5"
   },
   "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
     "@types/node": "^18.7.18",
     "@types/resolve": "^1.20.2",
     "cac": "^6.7.14",
@@ -35,7 +36,7 @@
     "magic-string": "^0.26.4",
     "picocolors": "^1.0.0",
     "resolve": "^1.22.1",
-    "unbuild": "^0.9.4",
-    "rollup": "^2.79.1"
+    "rollup": "^2.79.1",
+    "unbuild": "^0.9.4"
   }
 }

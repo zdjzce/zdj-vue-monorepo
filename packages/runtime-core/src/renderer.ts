@@ -1,13 +1,16 @@
 import { isObject } from '@zdj/utils'
-
 interface RendererOptions {
   createElement: (tag: string) => Element
+  insertNode: (parent: HTMLElement, el: HTMLElement | Element, anchor?: any) => void
+  patchProps: (el: HTMLElement | Element, key: string, prevValue, nextValue) => void
 }
 
-function createRenderer (options: RendererOptions) {
+function createRenderer(options: RendererOptions) {
 
   const {
-    createElement
+    createElement,
+    insertNode,
+    patchProps
   } = options
 
   function patch(oldNode, newNode, container) {
@@ -38,10 +41,17 @@ function createRenderer (options: RendererOptions) {
     } else {
       el.textContent = vnode.children
     }
-    container.appendChild(el)
+
+    if (vnode.props) {
+      for (const key in vnode.props) {
+        patchProps(el, key, null, vnode.props[key])
+      }
+    }
+
+    insertNode(container, el)
   }
 
-  
+
   return {
     renderer
   }
